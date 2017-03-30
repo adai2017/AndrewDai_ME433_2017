@@ -39,6 +39,7 @@
 // Definitions
 #define CLOCK 48000000
 #define PIC32_LED LATAbits.LATA4
+#define PIC32_INT PORTBbits.RB4
 
 int main() {
 
@@ -65,14 +66,18 @@ int main() {
     __builtin_enable_interrupts();
     
     while(1) {
-	    // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
-		// remember the core timer runs at half the sysclk
         
-        while (_CP0_GET_COUNT() < 12000)  {
-            ;
+        if (PIC32_INT == 0)  {
+            PIC32_LED = 1;
         }
         
-        PIC32_LED = !PIC32_LED;
-        _CP0_SET_COUNT(0);
+        else    {
+            while (_CP0_GET_COUNT() < 12000)  {
+                ;
+            }
+
+            PIC32_LED = !PIC32_LED;
+            _CP0_SET_COUNT(0);
+        }
     }
 }
