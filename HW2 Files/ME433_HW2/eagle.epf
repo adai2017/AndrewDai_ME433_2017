@@ -19,6 +19,7 @@ UsedLibrary="C:/EAGLE 8.1.0/lbr/74xx-us.lbr"
 UsedLibrary="C:/EAGLE 8.1.0/lbr/751xx.lbr"
 UsedLibrary="C:/EAGLE 8.1.0/lbr/IQD-Frequency-Products.lbr"
 UsedLibrary="C:/EAGLE 8.1.0/lbr/ME433.lbr"
+UsedLibrary="C:/EAGLE 8.1.0/lbr/SparkFun-Connectors.lbr"
 UsedLibrary="C:/EAGLE 8.1.0/lbr/advanced-test-technologies.lbr"
 UsedLibrary="C:/EAGLE 8.1.0/lbr/agilent-technologies.lbr"
 UsedLibrary="C:/EAGLE 8.1.0/lbr/allegro.lbr"
@@ -351,7 +352,7 @@ UsedLibrary="C:/EAGLE 8.1.0/lbr/zilog.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="-8 -8 1527 792"
+Loc="0 0 1535 800"
 State=1
 Number=0
 
