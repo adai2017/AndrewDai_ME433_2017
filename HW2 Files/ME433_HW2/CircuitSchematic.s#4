@@ -485,7 +485,10 @@ IC needs to have legs bent before insertion.</description>
 <pin name="3.VOUT" x="15.24" y="0" length="middle" rot="R180"/>
 <text x="2.54" y="-7.62" size="1.778" layer="95">&gt;NAME</text>
 <text x="2.54" y="-10.16" size="1.778" layer="95">&gt;VALUE</text>
-<rectangle x1="-12.7" y1="-12.7" x2="12.7" y2="2.54" layer="97"/>
+<wire x1="-12.7" y1="2.54" x2="-12.7" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="-12.7" y1="-12.7" x2="12.7" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-12.7" x2="12.7" y2="2.54" width="0.254" layer="94"/>
+<wire x1="12.7" y1="2.54" x2="-12.7" y2="2.54" width="0.254" layer="94"/>
 </symbol>
 <symbol name="SLIDE-SWITCH-2">
 <pin name="2.VOUT" x="0" y="-5.08" length="middle" rot="R90"/>

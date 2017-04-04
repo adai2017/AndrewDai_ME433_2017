@@ -542,7 +542,7 @@ IC needs to have legs bent before insertion.</description>
 <pin name="11.B4/USER" x="-20.32" y="-10.16" length="middle"/>
 <pin name="12.A4/LED" x="-20.32" y="-12.7" length="middle"/>
 <pin name="13.VDD" x="-20.32" y="-15.24" length="middle"/>
-<pin name="14.VSBID/B5" x="-20.32" y="-17.78" length="middle"/>
+<pin name="14.USBID/B5" x="-20.32" y="-17.78" length="middle"/>
 <pin name="28.AVDD" x="20.32" y="15.24" length="middle" rot="R180"/>
 <pin name="27.AVSS" x="20.32" y="12.7" length="middle" rot="R180"/>
 <pin name="26.B15" x="20.32" y="10.16" length="middle" rot="R180"/>
@@ -761,7 +761,7 @@ IC needs to have legs bent before insertion.</description>
 <connect gate="G$1" pin="11.B4/USER" pad="11"/>
 <connect gate="G$1" pin="12.A4/LED" pad="12"/>
 <connect gate="G$1" pin="13.VDD" pad="13"/>
-<connect gate="G$1" pin="14.VSBID/B5" pad="14"/>
+<connect gate="G$1" pin="14.USBID/B5" pad="14"/>
 <connect gate="G$1" pin="15.VBUS" pad="15"/>
 <connect gate="G$1" pin="16.B7" pad="16"/>
 <connect gate="G$1" pin="17.B8" pad="17"/>
@@ -14994,61 +14994,61 @@ Source: www.kingbright.com</description>
 </net>
 <net name="USBID" class="0">
 <segment>
-<pinref part="U$4" gate="G$1" pin="14.VSBID/B5"/>
+<pinref part="U$4" gate="G$1" pin="14.USBID/B5"/>
 <wire x1="53.34" y1="27.94" x2="38.1" y2="27.94" width="0.1524" layer="91"/>
 <label x="38.1" y="27.94" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$19" class="0">
+<net name="B15" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="26.B15"/>
 <wire x1="93.98" y1="55.88" x2="109.22" y2="55.88" width="0.1524" layer="91"/>
 <label x="109.22" y="55.88" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$20" class="0">
+<net name="B14" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="25.B14"/>
 <wire x1="93.98" y1="53.34" x2="109.22" y2="53.34" width="0.1524" layer="91"/>
 <label x="109.22" y="53.34" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$21" class="0">
+<net name="B13" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="24.B13"/>
 <wire x1="93.98" y1="50.8" x2="109.22" y2="50.8" width="0.1524" layer="91"/>
 <label x="109.22" y="50.8" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$22" class="0">
+<net name="D-" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="22.D-/B11"/>
 <wire x1="93.98" y1="45.72" x2="109.22" y2="45.72" width="0.1524" layer="91"/>
 <label x="109.22" y="45.72" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$23" class="0">
+<net name="D+" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="21.D+/B10"/>
 <wire x1="93.98" y1="43.18" x2="109.22" y2="43.18" width="0.1524" layer="91"/>
 <label x="109.22" y="43.18" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$24" class="0">
+<net name="B9" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="18.B9"/>
 <wire x1="93.98" y1="35.56" x2="109.22" y2="35.56" width="0.1524" layer="91"/>
 <label x="109.22" y="35.56" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$25" class="0">
+<net name="B8" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="17.B8"/>
 <wire x1="93.98" y1="33.02" x2="109.22" y2="33.02" width="0.1524" layer="91"/>
 <label x="109.22" y="33.02" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$26" class="0">
+<net name="B7" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="16.B7"/>
 <wire x1="93.98" y1="30.48" x2="109.22" y2="30.48" width="0.1524" layer="91"/>
