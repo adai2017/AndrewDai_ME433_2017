@@ -169,6 +169,22 @@
 <text x="2.54" y="33.655" size="1.016" layer="21">A0</text>
 <text x="5.715" y="43.18" size="1.016" layer="21">ON</text>
 <text x="9.525" y="43.18" size="1.016" layer="21">OFF</text>
+<text x="20.32" y="42.545" size="1.016" layer="21" rot="R180">MCLR</text>
+<text x="20.32" y="40.005" size="1.016" layer="21" rot="R180">A0</text>
+<text x="20.32" y="37.465" size="1.016" layer="21" rot="R180">A1</text>
+<text x="20.32" y="34.925" size="1.016" layer="21" rot="R180">PGED1</text>
+<text x="20.32" y="32.385" size="1.016" layer="21" rot="R180">PGEC1</text>
+<text x="20.32" y="29.845" size="1.016" layer="21" rot="R180">B2</text>
+<text x="20.32" y="27.305" size="1.016" layer="21" rot="R180">B3</text>
+<text x="20.32" y="24.765" size="1.016" layer="21" rot="R180">GND</text>
+<text x="20.32" y="21.59" size="1.016" layer="22" rot="MR0">OSC1</text>
+<text x="20.32" y="19.05" size="1.016" layer="22" rot="MR0">OSC2</text>
+<text x="20.32" y="17.145" size="1.016" layer="21" rot="R180">B4</text>
+<text x="20.32" y="14.605" size="1.016" layer="21" rot="R180">A4</text>
+<text x="20.32" y="7.62" size="1.016" layer="21" rot="R180">USBID</text>
+<text x="20.32" y="11.43" size="1.016" layer="22" rot="MR0">+3V3</text>
+<text x="8.255" y="5.715" size="1.016" layer="21">PIC RESET</text>
+<text x="30.48" y="5.715" size="1.016" layer="21">USER RESET</text>
 </plain>
 <libraries>
 <library name="SparkFun-Connectors">

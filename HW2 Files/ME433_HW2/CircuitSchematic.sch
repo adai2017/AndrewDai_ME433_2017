@@ -15065,6 +15065,11 @@ Source: www.kingbright.com</description>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="113,1,-13.037,31.8177,8MHZ-CRYSTAL,,,,,"/>
+<approved hash="113,1,96.8417,87.63,RED,,,,,"/>
+<approved hash="113,1,109.542,87.63,GREEN,,,,,"/>
+</errors>
 </schematic>
 </drawing>
 </eagle>
