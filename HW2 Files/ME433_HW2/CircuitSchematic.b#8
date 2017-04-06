@@ -194,6 +194,13 @@
 <text x="30.48" y="15.875" size="1.016" layer="21">B9</text>
 <text x="30.48" y="13.335" size="1.016" layer="21">B8</text>
 <text x="30.48" y="10.795" size="1.016" layer="21">B7</text>
+<text x="47.625" y="22.225" size="1.016" layer="21" rot="R180">B7</text>
+<text x="47.625" y="24.765" size="1.016" layer="21" rot="R180">B8</text>
+<text x="47.625" y="27.305" size="1.016" layer="21" rot="R180">B9</text>
+<text x="47.625" y="29.845" size="1.016" layer="21" rot="R180">B13</text>
+<text x="47.625" y="32.385" size="1.016" layer="21" rot="R180">B14</text>
+<text x="47.625" y="34.925" size="1.016" layer="21" rot="R180">B15</text>
+<text x="47.625" y="19.685" size="1.016" layer="21" rot="R180">+5V</text>
 </plain>
 <libraries>
 <library name="SparkFun-Connectors">
