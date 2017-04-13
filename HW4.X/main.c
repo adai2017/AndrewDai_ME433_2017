@@ -45,7 +45,11 @@
 void initSPI1(void);
 unsigned char spi_io(unsigned char o);
 void write_dac(unsigned int channel, unsigned int voltage);
+void sineGen(void);
+void sawtGen(void);
 
+static volatile unsigned int sinewave[100];
+static volatile unsigned int sawtwave[200];
 
 int main() {
 
@@ -60,24 +64,14 @@ int main() {
     // disable JTAG to get pins back
     DDPCONbits.JTAGEN = 0;
     
+    sineGen();
+    sawtGen();
     initSPI1();
-    
-    unsigned int i = 0;
-    
-    unsigned int sinewave[100];
-    unsigned int rampwave[100];
-    double temp;
-    
-    for (i=0;i<100;i++)    {
-        temp = 255.0/2.0 + 255.0/2.0*sin(2.0*M_PI*i/100.0);
-        sinewave[i] = temp;
-        temp = 2.5*(i+225.0/100.0);
-        rampwave[i] = temp;
-    }
     
     __builtin_enable_interrupts();
     
-    i = 0;
+    unsigned int i = 0;
+    unsigned int j = 0;
     
     while(1) {
         _CP0_SET_COUNT(0);
@@ -85,10 +79,14 @@ int main() {
         write_dac(1, sinewave[i]);
         _CP0_SET_COUNT(0);
         while(_CP0_GET_COUNT() < CLOCK/2/10000)  {;}
-        write_dac(0, rampwave[i]);
+        write_dac(0, sawtwave[j]);
         i++;
+        j++;
         if (i == 100)  {
             i = 0;
+        }
+        if (j == 200)   {
+            j = 0;
         }
     }
 }
@@ -132,4 +130,20 @@ void write_dac(unsigned int channel, unsigned int voltage)  {
     spi_io(b1);
     spi_io(b2);
     CS = 1;
+}
+
+void sineGen()  {
+    unsigned int i;
+    
+    for (i=0;i<100;i++) {
+        sinewave[i] = 255.0/2.0 + 255.0/2.0*sin(2.0*M_PI*i/100.0);
+    }
+}
+
+void sawtGen()  {
+    unsigned int j;
+    
+    for (j=0;j<200;j++)    {
+        sawtwave[j] = j*225.0/200.0;
+    }
 }
