@@ -1,7 +1,7 @@
 #include<xc.h>           // processor SFR definitions
 #include<sys/attribs.h>  // __ISR macro
-#include<math.h>         // Math library
 #include<stdio.h>
+#include<i2c_master_noint.c>
 
 // DEVCFG0
 #pragma config DEBUG = OFF // no debugging
@@ -40,21 +40,18 @@
 
 // Definitions
 #define CLOCK 48000000
-#define CS LATAbits.LATA4       // chip select (CS) pin
+#define SLAVE_ADDR 0b0100000
 
-void initSPI1(void);
-unsigned char spi_io(unsigned char o);
-void write_dac(unsigned int channel, unsigned int voltage);
-void sineGen(void);
-void sawtGen(void);
-
-static volatile unsigned int sinewave[100];
-static volatile unsigned int sawtwave[200];
+void init_expander(void);
+unsigned char get_expander(void);
+void set_expander(unsigned char);
 
 int main() {
-
     __builtin_disable_interrupts();
 
+    // set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
+    __builtin_mtc0(_CP0_CONFIG, _CP0_CONFIG_SELECT, 0xa4210583);
+    
     // 0 data RAM access wait states
     BMXCONbits.BMXWSDRM = 0x0;
 
@@ -64,86 +61,61 @@ int main() {
     // disable JTAG to get pins back
     DDPCONbits.JTAGEN = 0;
     
-    sineGen();
-    sawtGen();
-    initSPI1();
+    unsigned char pins = 0;
     
-    __builtin_enable_interrupts();
-    
-    unsigned int i = 0;
-    unsigned int j = 0;
-    
-    while(1) {
+    while(1)    {
         _CP0_SET_COUNT(0);
         while(_CP0_GET_COUNT() < CLOCK/2/1000)  {;}
-        write_dac(1, sinewave[i]);
-        _CP0_SET_COUNT(0);
-        while(_CP0_GET_COUNT() < CLOCK/2/10000)  {;}
-        write_dac(0, sawtwave[j]);
-        i++;
-        j++;
-        if (i == 100)  {
-            i = 0;
+        
+        pins = get_expander();
+        if(pins&1 == 0b1)   {
+            set_expander(0);
+            // LATAbits.LATA4 = 1
         }
-        if (j == 200)   {
-            j = 0;
+        else    {
+            set_expander(1);
+            // LATAbits.LATA4 = 0
         }
     }
 }
 
-void initSPI1() {
-    TRISAbits.TRISA4 = 0;     // A4 is CS pin
-    CS = 1;
+void init_expander()    {
+    i2c2_master_start();
+    i2c2_master_send(SLAVE_ADDR << 1 | 0);
+    i2c2_master_send(0); // io
+    i2c2_master_send(0b00001111);
+    i2c2_master_stop();
     
-    RPA1Rbits.RPA1R = 0b0011; // sets A1 as SDO1 of PIC32
-
-    
-    SPI1CON = 0;              // turn off the spi module and reset it
-    SPI1BUF;                  // clear the rx buffer by reading from it
-    SPI1BRG = 0x1000;         // baud rate to 10 MHz [SPI4BRG = (80000000/(2*desired))-1]
-    SPI1STATbits.SPIROV = 0;  // clear the overflow bit
-    SPI1CONbits.CKE = 1;      // data changes when clock goes from hi to lo (since CKP is 0)
-    SPI1CONbits.MSTEN = 1;    // master operation
-    SPI1CONbits.ON = 1;       // turn on spi 1
+    i2c2_master_start();
+    i2c2_master_send(SLAVE_ADDR << 1| 0);
+    i2c2_master_send(0x6);   // pullups
+    i2c2_master_send(0b00001111);
+    i2c2_master_stop;
 }
 
+unsigned char get_expander()    {
+    i2c2_master_start();
+    i2c2_master_send(SLAVE_ADDR << 1| 0);
+    i2c2_master_send(0x9);
+    i2c2_master_restart();
+    i2c2_master_send(SLAVE_ADDR << 1 | 1);
+    
+    unsigned char a = i2c2_master_recv();
+    i2c2_master_ack(1);
+    i2c2_master_stop();
+    
+    return a;
+}
 
-unsigned char spi_io(unsigned char o) {
-    SPI1BUF = o;
-    while(!SPI1STATbits.SPIRBF) { // wait to receive the byte
-    ;
+void set_expander(unsigned char value)  {
+    i2c2_master_start();
+    i2c2_master_send(SLAVE_ADDR << 1 | 0);
+    i2c2_master_send(0x9);
+    
+    if (value == 0) {
+        i2c2_master_send(0);
     }
-    return SPI1BUF;
-}
-
-void write_dac(unsigned int channel, unsigned int voltage)  {
-    unsigned char b1 = 0;
-    unsigned char b2 = 0;
-    
-    b1 = (channel<<7);
-    b1 = b1 | (0b1110000);
-    b1 = b1 | (voltage>>4);
-    
-    b2 = (voltage<<4);
-    
-    CS = 0;
-    spi_io(b1);
-    spi_io(b2);
-    CS = 1;
-}
-
-void sineGen()  {
-    unsigned int i;
-    
-    for (i=0;i<100;i++) {
-        sinewave[i] = 255.0/2.0 + 255.0/2.0*sin(2.0*M_PI*i/100.0);
-    }
-}
-
-void sawtGen()  {
-    unsigned int j;
-    
-    for (j=0;j<200;j++)    {
-        sawtwave[j] = j*225.0/200.0;
+    else    {
+        i2c2_master_send(1);
     }
 }
