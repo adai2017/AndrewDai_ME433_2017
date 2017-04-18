@@ -2,6 +2,10 @@
 // The functions must be callled in the correct order as per the I2C protocol
 // I2C2 set
 // I2C pins need pull-up resistors, 2k-10k
+#include<xc.h>           // processor SFR definitions
+#include<sys/attribs.h>  // __ISR macro
+#include "i2c_master_noint.h"
+
 
 void i2c2_master_setup(void) {
   I2C2BRG = 0xE9;            // I2CBRG = [1/(2*Fsck) - PGD]*Pblck - 2 

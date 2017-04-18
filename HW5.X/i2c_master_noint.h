@@ -3,6 +3,9 @@
 // Header file for i2c_master_noint.c
 // helps implement use I2C1 as a master without using interrupts
 
+#include<xc.h>           // processor SFR definitions
+#include<sys/attribs.h>  // __ISR macro
+
 void i2c2_master_setup(void);              // set up I2C 1 as a master, at 100 kHz
 
 void i2c2_master_start(void);              // send a START signal
