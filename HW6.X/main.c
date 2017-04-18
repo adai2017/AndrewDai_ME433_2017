@@ -40,6 +40,8 @@
 
 // Definitions
 #define CLOCK 48000000
+#define BCKGRND BLUE        // Background LCD color is "BLUE"   (0x001F)
+#define TEXT WHITE          // Text LCD color is "WHITE"        (0xFFFF)
 
 
 int main() {
@@ -62,15 +64,23 @@ int main() {
     
     __builtin_enable_interrupts();
     
-    LCD_clearScreen(BLUE);
+    LCD_clearScreen(BCKGRND);
     
-    char message[100];
-    sprintf(message, "Hello World!");
+    char msg[100];
+    char fps[20];
+    sprintf(msg, "Hello World!");
     
-    int i = 0;
+    int i = 0, j = 0;
     
+    LCD_writeString(msg, 28, 32, TEXT, BCKGRND);
     
     while(1)   {
-        ;
+        _CP0_SET_COUNT(0);
+        
+        while(_CP0_GET_COUNT() < CLOCK / 800000)  {   // 30 Hz
+            ;
+        }
+        
+        
     }
 }

@@ -189,3 +189,46 @@ void LCD_clearScreen(unsigned short color) {
 			LCD_data16(color);
 		}
 }
+
+void LCD_writeChar(unsigned char c, unsigned short x, unsigned short y, unsigned short color1, unsigned short color2) {
+    char row = c - 0x20;      // access correct row in ASCII table
+    int i, j;
+    char col, val;
+    
+    for (i=0;i<5;i++)   {
+        
+        col = ASCII[row][i];    // assigns ASCII hex value to column of letter
+        
+        for (j=0;j<8;j++)   {
+            if (((x+i) < 128) & ((y+j) < 128))  {   // check that pixel exists
+                val = (col >> j) & 1; // checks if pixel to be drawn is already on
+                
+                if (val == 1)   {
+                    LCD_drawPixel(x+i, y+j, color1);  // draws pixel TEXT color
+                }
+                else    {
+                    LCD_drawPixel(x+i, y+j, color2);  // draws pixel BCKGRND color
+                }
+            }
+        }
+    }
+}
+
+void LCD_writeString(char *msg, unsigned short x, unsigned short y, unsigned short color1, unsigned short color2) {
+    int i = 0;
+    
+    while(msg[i] != 0)  {
+        LCD_writeChar(msg[i], x+(5*i), y, color1, color2);
+        i++;
+    }
+}
+
+void LCD_writeBar(unsigned short x, unsigned short y, unsigned short color1, unsigned short length, unsigned short width)   {
+    int i, j;
+    
+    for (i=0;i<length;i++)  {
+        for (j=0;j<width;j++)   {
+            LCD_drawPixel((x+i), (y+j), color1);
+        }
+    }
+}
