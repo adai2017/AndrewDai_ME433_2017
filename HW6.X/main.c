@@ -57,6 +57,20 @@ int main() {
     // disable JTAG to get pins back
     DDPCONbits.JTAGEN = 0;
     
-    LCD_init();
-
+    SPI1_init();    // initializes SPI1 peripheral
+    LCD_init();     // initializes LCD screen
+    
+    __builtin_enable_interrupts();
+    
+    LCD_clearScreen(BLUE);
+    
+    char message[100];
+    sprintf(message, "Hello World!");
+    
+    int i = 0;
+    
+    
+    while(1)   {
+        ;
+    }
 }
