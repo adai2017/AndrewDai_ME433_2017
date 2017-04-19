@@ -2,6 +2,7 @@
 #include<sys/attribs.h>  // __ISR macro
 #include<stdio.h>
 #include "ILI9163C.h"
+#include "i2c_master_noint.h"
 
 // DEVCFG0
 #pragma config DEBUG = OFF // no debugging
