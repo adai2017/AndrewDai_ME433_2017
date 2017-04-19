@@ -64,23 +64,43 @@ int main() {
     
     __builtin_enable_interrupts();
     
-    LCD_clearScreen(BCKGRND);
+    LCD_clearScreen(BCKGRND);   // sets LCD screen to color BCKGRND
     
     char msg[100];
+    char num[20];
     char fps[20];
     sprintf(msg, "Hello World!");
     
-    int i = 0, j = 0;
+    unsigned int msgLen = 6*LCD_msgLength(msg); // sets spacing for numbers later
+    
+    int i = 0;
+    int fps_count;
     
     LCD_writeString(msg, 28, 32, TEXT, BCKGRND);
     
-    while(1)   {
+    _CP0_SET_COUNT(0);
+    
+    while(1)    {
         _CP0_SET_COUNT(0);
-        
-        while(_CP0_GET_COUNT() < CLOCK / 800000)  {   // 30 Hz
-            ;
+        sprintf(num, "%d   ", (i-50));
+        LCD_writeString(num, 28+msgLen, 32, TEXT, BCKGRND);
+        LCD_writeBar(64, 48, TEXT, 1, 5);           // draws center bar
+        if (i < 50)  {
+            LCD_writeBar(14+i, 48, TEXT, (50-i), 5);    // draws bar color TEXT
+            LCD_writeBar(14, 48, BCKGRND, i, 5);      // draws bar color BCKGRND over old bars
         }
-        
-        
+        else    {
+            LCD_writeBar(64, 48, TEXT, (i-50), 5);
+        }
+
+        i++;
+        if (i == 100)   {
+            i = 0;
+            LCD_writeBar(64, 48, BCKGRND, 50, 5);       // clears bar on the right
+        }
+
+        fps_count = (CLOCK/2) / _CP0_GET_COUNT();
+        sprintf(fps, "FPS:  %d   ", fps_count);
+        LCD_writeString(fps, 48, 64, TEXT, BCKGRND);
     }
 }
