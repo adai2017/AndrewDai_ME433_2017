@@ -41,9 +41,11 @@
 
 // Definitions
 #define CLOCK 48000000
-#define BCKGRND BLUE        // Background LCD color is "BLUE"   (0x001F)
-#define TEXT WHITE          // Text LCD color is "WHITE"        (0xFFFF)
+#define BCKGRND BLUE             // Background LCD color is "BLUE"   (0x001F)
+#define TEXT WHITE               // Text LCD color is "WHITE"        (0xFFFF)
+#define ACCEL_ADDR 0b11010100    // Address of LSM6DS33 (0 = default write)
 
+void I2C2_init(void);            // I2C2 initialization function
 
 int main() {
     __builtin_disable_interrupts();
@@ -60,8 +62,10 @@ int main() {
     // disable JTAG to get pins back
     DDPCONbits.JTAGEN = 0;
     
+    I2C2_init();    // initializes I2C2 peripheral
     SPI1_init();    // initializes SPI1 peripheral
     LCD_init();     // initializes LCD screen
+
     
     __builtin_enable_interrupts();
     
@@ -70,4 +74,29 @@ int main() {
     while(1)    {
 
     }
+}
+
+void I2C2_init(void)    {
+    ANSELBbits.ANSB2 = 0;           // turn of analog on B2 and B3
+    ANSELBbits.ANSB3 = 0;           // SDA2 (B2) and SCL2 (B3))
+    
+    i2c2_master_setup();            // turns on I2C
+    
+    i2c2_master_start();
+    i2c2_master_send(ACCEL_ADDR);
+    i2c2_master_send(0x10);         // access CTRL1_XL register
+    i2c2_master_send();
+    i2c2_master_stop();
+    
+    i2c2_master_start();
+    i2c2_master_send(ACCEL_ADDR);
+    i2c2_master_send(0x11);         // access CTRL2_G register
+    i2c2_master_send();
+    i2c2_master_stop();
+    
+    i2c2_master_start();
+    i2c2_master_send(ACCEL_ADDR);
+    i2c2_master_send(0x12);         // access CTRL3_C register
+    i2c2_master_send();
+    i2c2_master_stop();
 }
