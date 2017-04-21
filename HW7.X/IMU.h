@@ -6,6 +6,7 @@
 
 void IMU_init(void);
 void IMU_read_multiple(unsigned char reg, unsigned char *data, int length);
+unsigned char IMU_check(void);
 
 #endif
 

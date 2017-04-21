@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include "ILI9163C.h"
 #include "i2c_master_noint.h"
+#include "IMU.h"
 
 // DEVCFG0
 #pragma config DEBUG = OFF // no debugging
@@ -41,8 +42,10 @@
 
 // Definitions
 #define CLOCK 48000000
-#define BCKGRND BLUE             // Background LCD color is "BLUE"   (0x001F)
+#define BCKGRND MAGENTA          // Background LCD color is "BLUE"   (0xF81F)
 #define TEXT WHITE               // Text LCD color is "WHITE"        (0xFFFF)
+#define VAL 32768                // 2^16 / 2 = 65536 / 2 = 32768
+#define CHECK 0b01101001         // Default WHO_AM_I register value
 
 int main() {
     __builtin_disable_interrupts();
@@ -67,7 +70,41 @@ int main() {
     
     LCD_clearScreen(BCKGRND);   // sets LCD screen to color BCKGRND
     
+    unsigned char msg1[100];     // debugging message arrays
+    unsigned char msg2[100];
+    unsigned char msg3[100];
+    unsigned char IMU_data[14];
+    signed short ACC_data[7]; // (temperature, gyroX, gyroY, gyroZ, accelX, accelY, accelZ))
+    
+    sprintf(msg1, "DOWN");
+    sprintf(msg2, "LEFT");
+    
+    LCD_writeBar(60, 60, TEXT, 4, 4);
+    LCD_writeString(msg1, 56, 84, TEXT, BCKGRND);
+    LCD_writeString(msg2, 84, 56, RED, BCKGRND);
+    
     while(1)    {
+        //while (_CP0_GET_COUNT() < CLOCK / 4800000)  {;}
+        
+        //_CP0_SET_COUNT(0);
+        
+        IMU_read_multiple(0x20, IMU_data, 14);
+        
+        int i;
+        
+        for (i=0;i<7;i++)   {
+            ACC_data[i] = ((IMU_data[(2*i)+1] << 8) | (IMU_data[2*i]));
+        }
 
+        sprintf(msg3, " X:  %d    ", ACC_data[4]);
+        LCD_writeString(msg3, 20, 20, TEXT, BCKGRND);
+        
+        if (ACC_data[4] < 0)    {
+            LCD_writeBar(60, 60, TEXT, -1*ACC_data[4]/500, 4);
+        }
+        else {
+            LCD_writeBar(60, 60, TEXT, ACC_data[4]/500, 4);
+        }
+        
     }
 }

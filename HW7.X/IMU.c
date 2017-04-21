@@ -2,6 +2,7 @@
 #include<sys/attribs.h>  // __ISR macro
 #include<stdio.h>
 #include "IMU.h"
+#include "i2c_master_noint.h"
 
 #define ACCEL_ADDR 0b11010100    // Address of LSM6DS33 (0 = default write)
 
@@ -42,11 +43,26 @@ void IMU_read_multiple(unsigned char reg, unsigned char *data, int length)  {
     for (i=0;i<length;i++)  {
         data[i] = i2c2_master_recv();
         
-        if (i < length-1)   {
+        if (i < (length-1))   {
             i2c2_master_ack(0);         // continues to request data
+        }
+        else    {
+            i2c2_master_ack(1);
         }
     }
     
-    i2c2_master_ack(1);                 // stops requesting data
     i2c2_master_stop();
+}
+
+unsigned char IMU_check(void)   {
+    unsigned char value;
+    
+    i2c2_master_start();
+    i2c2_master_send(ACCEL_ADDR);
+    i2c2_master_send(0x0F);             // access WHO_AM_I register
+    i2c2_master_restart();
+    i2c2_master_send(ACCEL_ADDR | 1);
+    value = i2c2_master_recv();
+    
+    return value;
 }
