@@ -45,7 +45,7 @@
 #define BCKGRND MAGENTA          // Background LCD color is "BLUE"   (0xF81F)
 #define TEXT WHITE               // Text LCD color is "WHITE"        (0xFFFF)
 #define MAX_VAL 32768            // 2^16 / 2 = 65536 / 2 = 32768
-#define VAL 512                  
+#define VAL 256                  
 #define CHECK 0b01101001         // Default WHO_AM_I register value (105))
 
 int main() {
@@ -76,29 +76,20 @@ int main() {
     
     unsigned char msg1[100];     // debugging message arrays
     unsigned char msg2[100];
-    unsigned char msg3[100];
-    unsigned char msg4[100];
 
     unsigned char IMU_data[14];
     unsigned char value;
     signed short ACC_data[7]; // (temperature, gyroX, gyroY, gyroZ, accelX, accelY, accelZ))
     signed short len = MAX_VAL / VAL;
-    signed short bar;
-    
-    sprintf(msg1, "DOWN");
-    sprintf(msg2, "LEFT");
-    
-    LCD_writeBar(60, 60, TEXT, 4, 4);
-//    LCD_writeString(msg1, 56, 84, TEXT, BCKGRND);
-//    LCD_writeString(msg2, 84, 56, RED, BCKGRND);
-    
+    signed short barx, bary;
+
+
     while(1)    {
-        while (_CP0_GET_COUNT() < CLOCK / 4800000)  {;}
-        
+        while (_CP0_GET_COUNT() < CLOCK / 4800000)  {;} // 10 Hz refresh speed
         _CP0_SET_COUNT(0);
         
         value = IMU_check();    // checks WHO_AM_I to ensure valid connection
-        
+
         if (value != CHECK)   {
             while (_CP0_GET_COUNT() < CLOCK/2)  {;}
             _CP0_SET_COUNT(0);
@@ -114,29 +105,41 @@ int main() {
                 ACC_data[i] = ((IMU_data[(2*i)+1] << 8) | (IMU_data[2*i]));
             }
 
-            sprintf(msg3, " X:  %d    ", ACC_data[4]);
-            sprintf(msg4, " Y:  %d    ", ACC_data[5]);
-            LCD_writeString(msg3, 20, 20, TEXT, BCKGRND);
-            LCD_writeString(msg4, 20, 40, TEXT, BCKGRND);
+//            sprintf(msg3, " X:  %d    ", ACC_data[4]);
+//            sprintf(msg4, " Y:  %d    ", ACC_data[5]);
+//            LCD_writeString(msg1, 20, 20, TEXT, BCKGRND);
+//            LCD_writeString(msg2, 20, 40, TEXT, BCKGRND);
+            
+            LCD_writeBar(60, 60, TEXT, 4, 4);
             
             if (ACC_data[4] < 0)    {
-                bar = (-1)*ACC_data[4]/VAL;
+                barx = (-1)*ACC_data[4]/VAL;
                 
-                LCD_writeBar(64, 64, TEXT, bar, 4);
-                LCD_writeBar(64+bar, 64, BCKGRND, len-bar, 4);
+                LCD_writeBar(64, 60, TEXT, barx, 4);
+                LCD_writeBar(64+barx, 60, BCKGRND, len-barx, 4);
+                LCD_writeBar(59-len, 60, BCKGRND, len, 4);
             }
             else {
-                bar = ACC_data[4]/VAL;
+                barx = ACC_data[4]/VAL;
                 
-                LCD_writeBar(64-(ACC_data[4]/VAL), 64, TEXT, ACC_data[4]/VAL, 4);
-                LCD_writeBar(0, 64, BCKGRND, len-bar, 4);
+                LCD_writeBar(60-barx, 60, TEXT, barx, 4);
+                LCD_writeBar(60-len, 60, BCKGRND, len-barx, 4);
+                LCD_writeBar(65, 60, BCKGRND, len, 4);
             }
             
             if (ACC_data[5] < 0)    {
-                LCD_writeBar(60, 60, TEXT, 4, (-1)*ACC_data[5]/VAL);
+                bary = (-1)*ACC_data[5]/VAL;
+                
+                LCD_writeBar(60, 64, TEXT, 4, bary);
+                LCD_writeBar(60, 64+bary, BCKGRND, 4, len-bary);
+                LCD_writeBar(60, 59-len, BCKGRND, 4, len);
             }
             else    {
-                LCD_writeBar(60, 60+(ACC_data[5]/VAL), TEXT, 4, ACC_data[5]/VAL);
+                bary = ACC_data[5]/VAL;
+                
+                LCD_writeBar(60, 60-bary, TEXT, 4, bary);
+                LCD_writeBar(60, 60-len, BCKGRND, 4, len-bary);
+                LCD_writeBar(60, 65, BCKGRND, 4, len);
             }
         }
     }
