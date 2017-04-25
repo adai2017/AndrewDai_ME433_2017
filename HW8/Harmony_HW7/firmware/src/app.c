@@ -56,8 +56,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app.h"
 #include<stdio.h>
 #include "../Harmony_HW7.X/i2c_master_noint.h"
-#include "ILI9163C.h"
-#include "IMU.h"
+#include "../Harmony_HW7.X/ILI9163C.h"
+#include "../Harmony_HW7.X/IMU.h"
 
 #define CLOCK 48000000
 #define BCKGRND BLUE             // Background LCD color is "BLUE"   (0xF81F)
