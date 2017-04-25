@@ -42,7 +42,7 @@
 
 // Definitions
 #define CLOCK 48000000
-#define BCKGRND MAGENTA          // Background LCD color is "BLUE"   (0xF81F)
+#define BCKGRND BLUE             // Background LCD color is "BLUE"   (0xF81F)
 #define TEXT WHITE               // Text LCD color is "WHITE"        (0xFFFF)
 #define MAX_VAL 32768            // 2^16 / 2 = 65536 / 2 = 32768
 #define VAL 256                  
