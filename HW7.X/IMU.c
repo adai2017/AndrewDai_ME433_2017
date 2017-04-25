@@ -4,7 +4,7 @@
 #include "IMU.h"
 #include "i2c_master_noint.h"
 
-#define ACCEL_ADDR 0b11010100    // Address of LSM6DS33 (0 = default write)
+#define ACCEL_ADDR 0b11010110    // Address of LSM6DS33 (0 = default write)
 
 void IMU_init(void)    {
     ANSELBbits.ANSB2 = 0;           // turn of analog on B2 and B3
@@ -24,11 +24,11 @@ void IMU_init(void)    {
     i2c2_master_send(0b10001000);   // 1.66 kHz sampling, 1000 dps sensitivity 
     i2c2_master_stop();
     
-    i2c2_master_start();
-    i2c2_master_send(ACCEL_ADDR);
-    i2c2_master_send(0x12);         // access CTRL3_C register
-    i2c2_master_send(0b00000100);   // IF_INC = 1
-    i2c2_master_stop();
+//    i2c2_master_start();
+//    i2c2_master_send(ACCEL_ADDR);   // IF_INC default value is 1, no need to write
+//    i2c2_master_send(0x12);         // access CTRL3_C register
+//    i2c2_master_send(0b00000100);   // IF_INC = 1
+//    i2c2_master_stop();
 }
 
 void IMU_read_multiple(unsigned char reg, unsigned char *data, int length)  {

@@ -44,8 +44,9 @@
 #define CLOCK 48000000
 #define BCKGRND MAGENTA          // Background LCD color is "BLUE"   (0xF81F)
 #define TEXT WHITE               // Text LCD color is "WHITE"        (0xFFFF)
-#define VAL 32768                // 2^16 / 2 = 65536 / 2 = 32768
-#define CHECK 0b01101001         // Default WHO_AM_I register value
+#define MAX_VAL 32768            // 2^16 / 2 = 65536 / 2 = 32768
+#define VAL 512                  
+#define CHECK 0b01101001         // Default WHO_AM_I register value (105))
 
 int main() {
     __builtin_disable_interrupts();
@@ -62,10 +63,13 @@ int main() {
     // disable JTAG to get pins back
     DDPCONbits.JTAGEN = 0;
     
-    IMU_init();    // initializes I2C2 peripheral
+    TRISAbits.TRISA4 = 0;
+    LATAbits.LATA4 = 1;
+
     SPI1_init();    // initializes SPI1 peripheral
     LCD_init();     // initializes LCD screen
-
+    IMU_init();    // initializes I2C2 peripheral
+    
     __builtin_enable_interrupts();
     
     LCD_clearScreen(BCKGRND);   // sets LCD screen to color BCKGRND
@@ -73,38 +77,67 @@ int main() {
     unsigned char msg1[100];     // debugging message arrays
     unsigned char msg2[100];
     unsigned char msg3[100];
+    unsigned char msg4[100];
+
     unsigned char IMU_data[14];
+    unsigned char value;
     signed short ACC_data[7]; // (temperature, gyroX, gyroY, gyroZ, accelX, accelY, accelZ))
+    signed short len = MAX_VAL / VAL;
+    signed short bar;
     
     sprintf(msg1, "DOWN");
     sprintf(msg2, "LEFT");
     
     LCD_writeBar(60, 60, TEXT, 4, 4);
-    LCD_writeString(msg1, 56, 84, TEXT, BCKGRND);
-    LCD_writeString(msg2, 84, 56, RED, BCKGRND);
+//    LCD_writeString(msg1, 56, 84, TEXT, BCKGRND);
+//    LCD_writeString(msg2, 84, 56, RED, BCKGRND);
     
     while(1)    {
-        //while (_CP0_GET_COUNT() < CLOCK / 4800000)  {;}
+        while (_CP0_GET_COUNT() < CLOCK / 4800000)  {;}
         
-        //_CP0_SET_COUNT(0);
+        _CP0_SET_COUNT(0);
         
-        IMU_read_multiple(0x20, IMU_data, 14);
+        value = IMU_check();    // checks WHO_AM_I to ensure valid connection
         
-        int i;
-        
-        for (i=0;i<7;i++)   {
-            ACC_data[i] = ((IMU_data[(2*i)+1] << 8) | (IMU_data[2*i]));
+        if (value != CHECK)   {
+            while (_CP0_GET_COUNT() < CLOCK/2)  {;}
+            _CP0_SET_COUNT(0);
+            
+            LATAbits.LATA4 = !LATAbits.LATA4;
         }
+        else    {
+            IMU_read_multiple(0x20, IMU_data, 14);
 
-        sprintf(msg3, " X:  %d    ", ACC_data[4]);
-        LCD_writeString(msg3, 20, 20, TEXT, BCKGRND);
-        
-        if (ACC_data[4] < 0)    {
-            LCD_writeBar(60, 60, TEXT, -1*ACC_data[4]/500, 4);
+            int i;
+
+            for (i=0;i<7;i++)   {
+                ACC_data[i] = ((IMU_data[(2*i)+1] << 8) | (IMU_data[2*i]));
+            }
+
+            sprintf(msg3, " X:  %d    ", ACC_data[4]);
+            sprintf(msg4, " Y:  %d    ", ACC_data[5]);
+            LCD_writeString(msg3, 20, 20, TEXT, BCKGRND);
+            LCD_writeString(msg4, 20, 40, TEXT, BCKGRND);
+            
+            if (ACC_data[4] < 0)    {
+                bar = (-1)*ACC_data[4]/VAL;
+                
+                LCD_writeBar(64, 64, TEXT, bar, 4);
+                LCD_writeBar(64+bar, 64, BCKGRND, len-bar, 4);
+            }
+            else {
+                bar = ACC_data[4]/VAL;
+                
+                LCD_writeBar(64-(ACC_data[4]/VAL), 64, TEXT, ACC_data[4]/VAL, 4);
+                LCD_writeBar(0, 64, BCKGRND, len-bar, 4);
+            }
+            
+            if (ACC_data[5] < 0)    {
+                LCD_writeBar(60, 60, TEXT, 4, (-1)*ACC_data[5]/VAL);
+            }
+            else    {
+                LCD_writeBar(60, 60+(ACC_data[5]/VAL), TEXT, 4, ACC_data[5]/VAL);
+            }
         }
-        else {
-            LCD_writeBar(60, 60, TEXT, ACC_data[4]/500, 4);
-        }
-        
     }
 }
