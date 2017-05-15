@@ -494,7 +494,7 @@ void APP_Tasks(void) {
                             ACC_data[i] = ((IMU_data[(2*i)+1] << 8) | (IMU_data[2*i]));
                         }
                         
-                        len = sprintf(dataOut, "%5d %5d %5d %5d %5d %5d %5d\r\n", j+1,
+                        len = sprintf(dataOut, "%5d: %5d %5d %5d %5d %5d %5d\r\n", j+1,
                                 ACC_data[4], ACC_data[5], ACC_data[6],  // accelerometer data
                                 ACC_data[1], ACC_data[2], ACC_data[3]); // gyro data
                         
