@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         myControl = (SeekBar) findViewById(R.id.seek1);
 
         myTextView = (TextView) findViewById(R.id.textView01);
-        myTextView.setText("The value is: "+progress);
+        myTextView.setText("Enter whatever you Like!");
 
         setMyControlListener();
     }
@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChanged = progress;
+                myTextView.setText("The value is: "+progress);
             }
 
             @Override
