@@ -69,9 +69,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define CLOCK 48000000
 #define BCKGRND BLUE             // Background LCD color is "BLUE"   (0xF81F)
 #define TEXT WHITE               // Text LCD color is "WHITE"        (0xFFFF)
-#define MAX_VAL 32768            // 2^16 / 2 = 65536 / 2 = 32768
-#define VAL 256                  
-#define CHECK 0b01101001         // Default WHO_AM_I register value (105))
+#define CHECK 0b01101001         // Default WHO_AM_I register value (105)
 
 uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];

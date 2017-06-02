@@ -56,6 +56,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app.h"
 #include "i2c_master_noint.h"
 #include "IMU.h"
+#include "mouse.h"
 
 
 // *****************************************************************************
