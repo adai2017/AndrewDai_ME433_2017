@@ -56,6 +56,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app.h"
 #include <stdio.h>
 #include <xc.h>
+#include "i2c_master_noint.h"
+#include "ILI9163C.h"
+#include "IMU.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -67,6 +70,10 @@ uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
 int len, i = 0;
 int startTime = 0;
+
+unsigned char IMU_data[14];
+signed short ACC_data[7]; // (temperature, gyroX, gyroY, gyroZ, accelX, accelY, accelZ))
+int j, k = 0;
 
 // *****************************************************************************
 /* Application Data
@@ -340,6 +347,8 @@ void APP_Initialize(void) {
     /* Set up the read buffer */
     appData.readBuffer = &readBuffer[0];
 
+    IMU_init();
+    
     startTime = _CP0_GET_COUNT();
 }
 
@@ -418,7 +427,7 @@ void APP_Tasks(void) {
             /* Check if a character was received or a switch was pressed.
              * The isReadComplete flag gets updated in the CDC event handler. */
 
-            if (appData.isReadComplete || _CP0_GET_COUNT() - startTime > (48000000 / 2 / 5)) {
+            if (appData.isReadComplete || _CP0_GET_COUNT() - startTime > (48000000 / 2 / 100)) {    // 100 Hz
                 appData.state = APP_STATE_SCHEDULE_WRITE;
             }
 
@@ -437,17 +446,40 @@ void APP_Tasks(void) {
             appData.isWriteComplete = false;
             appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
 
-            len = sprintf(dataOut, "%d\r\n", i);
-            i++;
-            if (appData.isReadComplete) {
+            len = sprintf(dataOut, "r\r\n");
+            
+            if (appData.isReadComplete && (*dataOut == *appData.readBuffer)) {
+                
+                len = sprintf(dataOut, "Ind:    AccX:    AccY:    AccZ:    GyX:    GyY:    GyZ:    \r\n");
+                
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle,
-                        appData.readBuffer, 1,
+                        dataOut, len,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
+                
+                k = 0;
+                
+                while (k<100)   {
+                    IMU_read_multiple(0x20, IMU_data, 14);  // IMU data
+                    
+                    for (j=0;j<7;j++)   {
+                        ACC_data[j] = ((IMU_data[(2*j)+1] << 8) | (IMU_data[2*j]));
+                    }
+                    
+                    len = sprintf(dataOut, "%3d %5d %5d %5d %5d %5d %5d\r\n", k+1, ACC_data[4], ACC_data[5],
+                            ACC_data[6], ACC_data[1], ACC_data[2], ACC_data[3]);
+                    
+                    USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
+                            &appData.writeTransferHandle, dataOut, len,
+                            USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
+                    
+                    k++;
+                }
+                
+                
+                
             } else {
-                USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
-                        &appData.writeTransferHandle, dataOut, len,
-                        USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
+                appData.state = APP_STATE_SCHEDULE_READ;
                 startTime = _CP0_GET_COUNT();
             }
             break;
