@@ -100,48 +100,6 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         return true;
     }
 
-    // the important function
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        // every time there is a new Camera preview frame
-        mTextureView.getBitmap(bmp);
-
-        for (int j = 0; j < bmp.getHeight(); j+=4) {
-
-            final Canvas c = mSurfaceHolder.lockCanvas();
-            if (c != null) {
-                int thresh = myControl.getProgress(); // comparison value
-                int[] pixels = new int[bmp.getWidth()]; // pixels[] is the RGBA data
-                int startY = j; // which row in the bitmap to analyze to read
-                bmp.getPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
-
-                // in the row, see if there is more green than red
-                for (int i = 0; i < bmp.getWidth(); i++) {
-                    if (((green(pixels[i]) - blue(pixels[i])) > thresh) && ((green(pixels[i])) - red(pixels[i])) > thresh) {
-                        pixels[i] = rgb(0, 255, 0); // over write the pixel with pure green
-                    }
-                }
-
-                // update the row
-                bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
-            }
-
-            // draw a circle at some position
-            int pos = 50;
-            canvas.drawCircle(pos, 240, 5, paint1); // x position, y position, diameter, color
-
-            // write the pos as text
-            canvas.drawText("Thresh = " + myControl.getProgress(), 10, 200, paint1);
-            c.drawBitmap(bmp, 0, 0, null);
-            mSurfaceHolder.unlockCanvasAndPost(c);
-
-            // calculate the FPS to see how fast the code is running
-            long nowtime = System.currentTimeMillis();
-            long diff = nowtime - prevtime;
-            mTextView.setText("FPS " + 1000 / diff);
-            prevtime = nowtime;
-        }
-    }
-
     private void setMyControlListener() {
         myControl.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -162,4 +120,47 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             }
         });
     }
+
+    // the important function
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        // every time there is a new Camera preview frame
+        mTextureView.getBitmap(bmp);
+
+        final Canvas c = mSurfaceHolder.lockCanvas();
+
+        for (int j = 0; j < bmp.getHeight(); j+=8) {
+        if (c != null) {
+            int thresh = myControl.getProgress(); // comparison value
+            int[] pixels = new int[bmp.getWidth()]; // pixels[] is the RGBA data
+            int startY = j; // which row in the bitmap to analyze to read
+            bmp.getPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
+
+            // in the row, see if there is more green than red
+            for (int i = 0; i < bmp.getWidth(); i++) {
+                if (((green(pixels[i]) - blue(pixels[i])) > thresh) && ((green(pixels[i])) - red(pixels[i])) > thresh) {
+                    pixels[i] = rgb(0, 255, 0); // over write the pixel with pure green
+                }
+            }
+
+            // update the row
+            bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
+        }
+        }
+
+        // draw a circle at some position
+        int pos = 50;
+        canvas.drawCircle(pos, 240, 5, paint1); // x position, y position, diameter, color
+
+        // write the pos as text
+        canvas.drawText("Thresh = " + myControl.getProgress(), 10, 200, paint1);
+        c.drawBitmap(bmp, 0, 0, null);
+        mSurfaceHolder.unlockCanvasAndPost(c);
+
+        // calculate the FPS to see how fast the code is running
+        long nowtime = System.currentTimeMillis();
+        long diff = nowtime - prevtime;
+        mTextView.setText("FPS " + 1000 / diff);
+        prevtime = nowtime;
+    }
+
 }
