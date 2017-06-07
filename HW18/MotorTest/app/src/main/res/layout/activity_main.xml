@@ -71,11 +71,11 @@
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send slider value" />
+            android:text="Send Motor Input" />
 
         <TextView
             android:id="@+id/textView02"
-            android:text="nothing from button yet"
+            android:text="nothing output yet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
@@ -87,7 +87,7 @@
 
             <TextView
                 android:id="@+id/textView03"
-                android:text="nothing from usb yet"
+                android:text="nothing from motors yet"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/holo_green_light"

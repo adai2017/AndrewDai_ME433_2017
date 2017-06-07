@@ -499,7 +499,7 @@ void APP_Tasks(void) {
                 gotRx = 0;
             } else {
                 len = sprintf(dataOut, "%d\r\n", i);
-                i++;
+                i;
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle, dataOut, len,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
