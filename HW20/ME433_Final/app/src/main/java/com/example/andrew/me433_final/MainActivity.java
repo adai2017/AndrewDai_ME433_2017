@@ -87,6 +87,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     int PWM1 = 0;
     int PWM2 = 0;
+    int RC = 0;
 
 
     SeekBar myControl;
@@ -120,7 +121,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         buttonUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String sendString = String.valueOf(10*myControlMaxSpeed.getProgress()) + ' ' + String.valueOf(COM) + ' ' + String.valueOf(myControlKp.getProgress()/100) + '\n';
+                String sendString = String.valueOf(10*myControlMaxSpeed.getProgress()) + ' ' + String.valueOf(COM) + ' ' + String.valueOf(myControlKp.getProgress()/100) + ' ' + String.valueOf(RC) + '\n';
                 try {
                     sPort.write(sendString.getBytes(), 10); // 10 is the timeout
                 } catch (IOException e) { }
@@ -217,7 +218,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChanged = progress;
-                progressKp = progress / 100;
+                progressKp = progress /  10;
                 myTextViewKp.setText("Kp: " +progressKp);
             }
 
@@ -461,20 +462,22 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
         }
 
-        int kp = myControlKp.getProgress() / 100;
+        int kp = myControlKp.getProgress() / 10;
 
         int error = COM - 240; // 240 means the dot is in the middle of the screen
         if (error<0) { // slow down the left motor to steer to the left
             error  = -error;
-            PWM2 = 10*myControlMaxSpeed.getProgress() - (kp*4*error/100);
-            PWM1 = 10*myControlMaxSpeed.getProgress() + (kp*4*error/100);
+            PWM2 = 10*myControlMaxSpeed.getProgress() - (kp*4*error/12);
+            PWM1 = 10*myControlMaxSpeed.getProgress() + (kp*4*error/12);
+            RC = 2000;
             if (PWM2 < 0){
                 PWM2 = 0;
             }
         }
         else { // slow down the right motor to steer to the right
-            PWM1 = 10*myControlMaxSpeed.getProgress() - (4*kp*error/100);
-            PWM2 = 10*myControlMaxSpeed.getProgress() + (4*kp*error/100);
+            PWM1 = 10*myControlMaxSpeed.getProgress() - (4*kp*error/12);
+            PWM2 = 10*myControlMaxSpeed.getProgress() + (4*kp*error/12);
+            RC = 7000;
             if (PWM1<0) {
                 PWM1 = 0;
             }
@@ -483,7 +486,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
 
 
-        String sendString = String.valueOf(PWM1) + ' ' + String.valueOf(COM) + ' ' + String.valueOf(kp) + '\n';
+        String sendString = String.valueOf(PWM1) + ' ' + String.valueOf(PWM2) + ' ' + String.valueOf(kp) + ' ' + String.valueOf(RC) + '\n';
         try {
             sPort.write(sendString.getBytes(), 10); // 10 is the timeout
         } catch (IOException e) { }

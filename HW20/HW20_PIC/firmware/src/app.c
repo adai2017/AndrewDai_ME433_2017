@@ -76,7 +76,8 @@ signed int PWM1 = 0;
 signed int PWM2 = 0;
 int MAX = 0;
 int COM = 0;
-float kp = 0;
+int kp = 0;
+int RC = 0;
 
 // *****************************************************************************
 /* Application Data
@@ -373,6 +374,19 @@ void APP_Initialize(void) {
     OC1CONbits.ON = 1;
     OC4CONbits.ON = 1;
     
+    // put these initializations in APP_Initialize()
+    T3CONbits.TCKPS = 4; // prescaler N=16
+    PR3 = 60000 - 1; // 50Hz
+    TMR3 = 0;
+    OC3CONbits.OCM = 0b110; // PWM mode without fault pin; other OC1CON bits are defaults
+    OC3CONbits.OCTSEL = 1; // use timer3
+    OC3RS = 4500; // should set the motor to 90 degrees (0.5ms to 2.5ms is 1500 to 7500 for 0 to 180 degrees)
+    OC3R = 4500; // read-only
+    T3CONbits.ON = 1;
+    OC3CONbits.ON = 1;
+
+    RPB14Rbits.RPB14R = 0b0101; // B14 is OC3
+    
     startTime = _CP0_GET_COUNT();
 }
 
@@ -439,11 +453,12 @@ void APP_Tasks(void) {
                     // if you got a newline
                     if (appData.readBuffer[ii] == '\n' || appData.readBuffer[ii] == '\r') {
                         rx[rxPos] = 0; // end the array
-                        sscanf(rx, "%d %d %d", &PWM1, &PWM2, &kp); // get the int out of the array
+                        sscanf(rx, "%d %d %d %d", &PWM1, &PWM2, &kp, &RC); // get the int out of the array
                         LATAbits.LATA1 = 0; // always go forward
                         LATBbits.LATB3 = 1;
                         OC1RS = PWM2;
                         OC4RS = PWM1;
+                        OC3RS = RC;
                         gotRx = 1; // set the flag
                         break; // get out of the while loop
                     } else if (appData.readBuffer[ii] == 0) {
@@ -495,7 +510,7 @@ void APP_Tasks(void) {
             appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
 
              if (gotRx) {
-                len = sprintf(dataOut, "got: %d %d %d\r\n", PWM1, PWM2, kp);
+                len = sprintf(dataOut, "got: %d %d %d %d\r\n", PWM1, PWM2, kp, RC);
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle,
                         dataOut, len,
