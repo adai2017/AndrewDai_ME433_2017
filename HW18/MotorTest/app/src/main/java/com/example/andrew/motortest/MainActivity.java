@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     TextView myTextViewR;
 
     Button button;
+    Button buttonStop;
     TextView myTextView2;
     ScrollView myScrollView;
     TextView myTextView3;
@@ -60,11 +61,22 @@ public class MainActivity extends AppCompatActivity {
         myScrollView = (ScrollView) findViewById(R.id.ScrollView01);
         myTextView3 = (TextView) findViewById(R.id.textView03);
         button = (Button) findViewById(R.id.button1);
+        buttonStop = (Button) findViewById(R.id.button2);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String sendString = String.valueOf(myControlL.getProgress()) + ' ' + String.valueOf(myControlR.getProgress()) + '\n';
+                String sendString = String.valueOf((10*myControlR.getProgress())+200) + ' ' + String.valueOf((10*myControlL.getProgress())+200) + '\n';
+                try {
+                    sPort.write(sendString.getBytes(), 10); // 10 is the timeout
+                } catch (IOException e) { }
+            }
+        });
+
+        buttonStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sendString = String.valueOf(0) + ' ' + String.valueOf(0) + '\n';
                 try {
                     sPort.write(sendString.getBytes(), 10); // 10 is the timeout
                 } catch (IOException e) { }
@@ -85,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChanged = progress;
-                myTextViewL.setText("The value is: "+progress);
+                int progressL = 10*progressChanged + 200;
+                myTextViewL.setText("The value is: "+progressL);
             }
 
             @Override
@@ -107,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChanged = progress;
-                myTextViewR.setText("The value is: "+progress);
+                int progressR = 10*progressChanged + 200;
+                myTextViewR.setText("The value is: "+progressR);
             }
 
             @Override

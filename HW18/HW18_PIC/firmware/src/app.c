@@ -72,8 +72,8 @@ char rx[64]; // the raw data
 int rxPos = 0; // how much data has been stored
 int gotRx = 0; // the flag
 int rxVal = 0; // a place to store the int that was received
-int PWM1 = 0;
-int PWM2 = 0;
+signed int PWM1 = 0;
+signed int PWM2 = 0;
 
 // *****************************************************************************
 /* Application Data
@@ -437,8 +437,32 @@ void APP_Tasks(void) {
                     if (appData.readBuffer[ii] == '\n' || appData.readBuffer[ii] == '\r') {
                         rx[rxPos] = 0; // end the array
                         sscanf(rx, "%d %d", &PWM1, &PWM2); // get the int out of the array
-                        OC1RS = PWM1;
-                        OC4RS = PWM2;
+                        
+                        if (PWM1 < 0)  {
+                            LATAbits.LATA1 = 0; // backwards when negative
+                            OC1RS = -1*PWM1;
+                        }
+                        else if (PWM1 > 0)  {
+                            LATAbits.LATA1 = 1; // forwards when positive
+                            OC1RS = PWM1;
+                        }
+                        else    {
+                            LATAbits.LATA1 = 0;
+                            OC1RS = 0;
+                        }
+                        
+                        if (PWM2 < 0)   {
+                            LATBbits.LATB3 = 1; // backwards when negative
+                            OC4RS = -1*PWM2;
+                        }
+                        else if (PWM2 > 0)  {
+                            LATBbits.LATB3 = 0;
+                            OC4RS = PWM2;
+                        }
+                        else    {
+                            LATBbits.LATB3 = 0;
+                            OC4RS = 0;
+                        }
                         gotRx = 1; // set the flag
                         break; // get out of the while loop
                     } else if (appData.readBuffer[ii] == 0) {
