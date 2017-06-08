@@ -74,6 +74,9 @@ int gotRx = 0; // the flag
 int rxVal = 0; // a place to store the int that was received
 signed int PWM1 = 0;
 signed int PWM2 = 0;
+int MAX = 0;
+int COM = 0;
+float kp = 0;
 
 // *****************************************************************************
 /* Application Data
@@ -436,33 +439,11 @@ void APP_Tasks(void) {
                     // if you got a newline
                     if (appData.readBuffer[ii] == '\n' || appData.readBuffer[ii] == '\r') {
                         rx[rxPos] = 0; // end the array
-                        sscanf(rx, "%d %d", &PWM1, &PWM2); // get the int out of the array
-                        
-                        if (PWM1 < 0)  {
-                            LATAbits.LATA1 = 0; // backwards when negative
-                            OC1RS = -1*PWM1;
-                        }
-                        else if (PWM1 > 0)  {
-                            LATAbits.LATA1 = 1; // forwards when positive
-                            OC1RS = PWM1;
-                        }
-                        else    {
-                            LATAbits.LATA1 = 0;
-                            OC1RS = 0;
-                        }
-                        
-                        if (PWM2 < 0)   {
-                            LATBbits.LATB3 = 1; // backwards when negative
-                            OC4RS = -1*PWM2;
-                        }
-                        else if (PWM2 > 0)  {
-                            LATBbits.LATB3 = 0;
-                            OC4RS = PWM2;
-                        }
-                        else    {
-                            LATBbits.LATB3 = 0;
-                            OC4RS = 0;
-                        }
+                        sscanf(rx, "%d %d %d", &PWM1, &PWM2, &kp); // get the int out of the array
+                        LATAbits.LATA1 = 0; // always go forward
+                        LATBbits.LATB3 = 1;
+                        OC1RS = PWM2;
+                        OC4RS = PWM1;
                         gotRx = 1; // set the flag
                         break; // get out of the while loop
                     } else if (appData.readBuffer[ii] == 0) {
@@ -473,6 +454,7 @@ void APP_Tasks(void) {
                         rxPos++;
                         ii++;
                     }
+                    
                 }
                 
                 if (appData.readTransferHandle == USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID) {
@@ -513,8 +495,7 @@ void APP_Tasks(void) {
             appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
 
              if (gotRx) {
-                len = sprintf(dataOut, "got: %d %d\r\n", PWM1, PWM2);
-                i++;
+                len = sprintf(dataOut, "got: %d %d %d\r\n", PWM1, PWM2, kp);
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle,
                         dataOut, len,

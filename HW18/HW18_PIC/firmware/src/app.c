@@ -439,11 +439,11 @@ void APP_Tasks(void) {
                         sscanf(rx, "%d %d", &PWM1, &PWM2); // get the int out of the array
                         
                         if (PWM1 < 0)  {
-                            LATAbits.LATA1 = 0; // backwards when negative
+                            LATAbits.LATA1 = 1; // backwards when negative
                             OC1RS = -1*PWM1;
                         }
                         else if (PWM1 > 0)  {
-                            LATAbits.LATA1 = 1; // forwards when positive
+                            LATAbits.LATA1 = 0; // forwards when positive
                             OC1RS = PWM1;
                         }
                         else    {
@@ -452,15 +452,15 @@ void APP_Tasks(void) {
                         }
                         
                         if (PWM2 < 0)   {
-                            LATBbits.LATB3 = 1; // backwards when negative
+                            LATBbits.LATB3 = 0; // backwards when negative
                             OC4RS = -1*PWM2;
                         }
                         else if (PWM2 > 0)  {
-                            LATBbits.LATB3 = 0;
+                            LATBbits.LATB3 = 1;
                             OC4RS = PWM2;
                         }
                         else    {
-                            LATBbits.LATB3 = 0;
+                            LATBbits.LATB3 = 1;
                             OC4RS = 0;
                         }
                         gotRx = 1; // set the flag

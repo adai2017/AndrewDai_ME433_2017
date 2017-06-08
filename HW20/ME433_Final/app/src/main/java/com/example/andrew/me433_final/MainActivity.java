@@ -44,14 +44,20 @@ import static android.graphics.Color.green;
 import static android.graphics.Color.red;
 import static android.graphics.Color.rgb;
 
+
+
 public class MainActivity extends Activity implements TextureView.SurfaceTextureListener {
 
     // USB Initializations
     SeekBar myControlMaxSpeed;
     TextView myTextViewMaxSpeed;
 
+    SeekBar myControlKp;
+    TextView myTextViewKp;
+
     Button buttonStart;
     Button buttonStop;
+    Button buttonUpdate;
     TextView myTextView2;
     ScrollView myScrollView;
     TextView myTextView3;
@@ -74,6 +80,14 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
     static long prevtime = 0; // for FPS calculation
 
+    int tot = 0;
+    int totY = 0;
+    int COM = 0;
+    int comArr = 0;
+
+    int PWM1 = 0;
+    int PWM2 = 0;
+
 
     SeekBar myControl;
     SeekBar myControl2;
@@ -85,22 +99,28 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // keeps the screen from turning off
 
-        myControlMaxSpeed = (SeekBar) findViewById(R.id.seek1);
+        myControlMaxSpeed = (SeekBar) findViewById(R.id.seekMotor);
 
-        myTextViewMaxSpeed = (TextView) findViewById(R.id.textViewL);
+        myTextViewMaxSpeed = (TextView) findViewById(R.id.textViewSpeed);
         myTextViewMaxSpeed.setText("Enter whatever you Like!");
+
+        myControlKp = (SeekBar) findViewById(R.id.seekKP);
+
+        myTextViewKp = (TextView) findViewById(R.id.textViewKP);
+        myTextViewKp.setText("Enter whatever you Like!");
 
 
         myTextView2 = (TextView) findViewById(R.id.textView02);
         myScrollView = (ScrollView) findViewById(R.id.ScrollView01);
         myTextView3 = (TextView) findViewById(R.id.textView03);
-        buttonStart = (Button) findViewById(R.id.button1);
+        buttonStart = (Button) findViewById(R.id.button3);
+        buttonUpdate = (Button) findViewById(R.id.button1);
         buttonStop = (Button) findViewById(R.id.button2);
 
-        buttonStart.setOnClickListener(new View.OnClickListener() {
+        buttonUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String sendString = String.valueOf(10*myControlMaxSpeed.getProgress()) + ' ' + String.valueOf(10*myControlMaxSpeed.getProgress()) + '\n';
+                String sendString = String.valueOf(10*myControlMaxSpeed.getProgress()) + ' ' + String.valueOf(COM) + ' ' + String.valueOf(myControlKp.getProgress()/100) + '\n';
                 try {
                     sPort.write(sendString.getBytes(), 10); // 10 is the timeout
                 } catch (IOException e) { }
@@ -110,14 +130,24 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String sendString = String.valueOf(0) + ' ' + String.valueOf(0) + '\n';
+                String sendString = String.valueOf(0) + ' ' + String.valueOf(0) + ' ' + String.valueOf(0) + '\n';
                 try {
                     sPort.write(sendString.getBytes(), 10); // 10 is the timeout
                 } catch (IOException e) { }
             }
         });
 
-        setMyControlListenerMaxSpeed();
+        buttonStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sendString = String.valueOf(1) + ' ' + String.valueOf(240) + ' ' + String.valueOf(0) + '\n';
+                try {
+                    sPort.write(sendString.getBytes(), 10); // 10 is the timeout
+                } catch (IOException e) { }
+            }
+        });
+
+
 
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
@@ -127,8 +157,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         myControl = (SeekBar) findViewById(R.id.seek1);
         myControl2 = (SeekBar) findViewById(R.id.seek2);
 
-        setMyControlListener();
-        setMyControlListener2();
+
 
         // see if the app has permission to use the camera
         //ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
@@ -147,19 +176,49 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         } else {
             mTextView.setText("no camera permissions");
         }
+
+        setMyControlListener();
+        setMyControlListener2();
+        setMyControlListenerMaxSpeed();
+        setMyControlListenerKP();
     }
 
 
     private void setMyControlListenerMaxSpeed() {
-        myControlMaxSpeed.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+        myControlMaxSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             int progressChanged = 0;
+            int progressAc = 0;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChanged = progress;
-                int progressAc = 10*progressChanged;
-                myTextViewMaxSpeed.setText("The value is: "+progressAc);
+                progressAc = 10*progress;
+                myTextViewMaxSpeed.setText("PWM Value: " +progressAc);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void setMyControlListenerKP() {
+        myControlKp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            float progressChanged = 0;
+            float progressKp = 0;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressChanged = progress;
+                progressKp = progress / 100;
+                myTextViewKp.setText("Kp: " +progressKp);
             }
 
             @Override
@@ -358,24 +417,24 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         mTextureView.getBitmap(bmp);
 
         final Canvas c = mSurfaceHolder.lockCanvas();
-        int tot = 0;
-        int totY = 0;
-        int COM;
-        int comArr = 0;
+        tot = 0;
+        totY = 0;
+        COM = 0;
+        comArr = 0;
 
-        for (int j = 0; j < bmp.getHeight(); j += 8) {
+//        for (int j = 0; j < bmp.getHeight(); j += 8) {
             if (c != null) {
                 int R = myControl.getProgress(); // grey threshold
                 int T = myControl2.getProgress(); // green threshold
                 int[] pixels = new int[bmp.getWidth()]; // pixels[] is the RGBA data
-                int startY = j; // which row in the bitmap to analyze to read
+                int startY = bmp.getHeight()/2; // which row in the bitmap to analyze to read
                 bmp.getPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
 
                 int sum_mr = 0; // the sum of the mass times the radius
                 int sum_m = 0; // the sum of the masses
                 for (int i = 0; i < bmp.getWidth(); i++) {
                     if (((green(pixels[i]) - red(pixels[i])) > -R)&&((green(pixels[i]) - red(pixels[i])) < R)&&(green(pixels[i])  > T)) {
-                        pixels[i] = rgb(1, 1, 1); // set the pixel to almost 100% black
+//                        pixels[i] = rgb(1, 1, 1); // set the pixel to almost 100% black
 
                         sum_m = sum_m + green(pixels[i])+red(pixels[i])+blue(pixels[i]);
                         sum_mr = sum_mr + (green(pixels[i])+red(pixels[i])+blue(pixels[i]))*i;
@@ -392,25 +451,51 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                     COM = 0;
                 }
 
-                comArr = comArr + COM;
-                tot++;
-                totY = totY + j;
+//                tot++;
+//                totY = totY + j;
 
                 // update the row
                 bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
 
-            }
+
 
         }
 
+        int kp = myControlKp.getProgress() / 100;
+
+        int error = COM - 240; // 240 means the dot is in the middle of the screen
+        if (error<0) { // slow down the left motor to steer to the left
+            error  = -error;
+            PWM2 = 10*myControlMaxSpeed.getProgress() - (kp*4*error/100);
+            PWM1 = 10*myControlMaxSpeed.getProgress() + (kp*4*error/100);
+            if (PWM2 < 0){
+                PWM2 = 0;
+            }
+        }
+        else { // slow down the right motor to steer to the right
+            PWM1 = 10*myControlMaxSpeed.getProgress() - (4*kp*error/100);
+            PWM2 = 10*myControlMaxSpeed.getProgress() + (4*kp*error/100);
+            if (PWM1<0) {
+                PWM1 = 0;
+            }
+        }
+
+
+
+
+        String sendString = String.valueOf(PWM1) + ' ' + String.valueOf(COM) + ' ' + String.valueOf(kp) + '\n';
+        try {
+            sPort.write(sendString.getBytes(), 10); // 10 is the timeout
+        } catch (IOException e) { }
+
         // draw a circle at some position
-        canvas.drawCircle(comArr / tot, totY / tot, 10, paint1); // x position, y position, diameter, color
+        canvas.drawCircle(COM, bmp.getHeight()/2, 10, paint1); // x position, y position, diameter, color
 
         // write the pos as text
         canvas.drawText("Grey Thresh = " + myControl.getProgress(), 10, 200, paint1);
         canvas.drawText("Green Thresh = " + myControl2.getProgress(), 10, 240, paint1);
-        canvas.drawText("COM X: " + (comArr/tot), 10, 300, paint1);
-        canvas.drawText("COM Y: " + (totY / tot), 10, 340, paint1);
+        canvas.drawText("COM X: " + (COM), 10, 300, paint1);
+        canvas.drawText("COM Y: " + (bmp.getHeight()/2), 10, 340, paint1);
         c.drawBitmap(bmp, 0, 0, null);
         mSurfaceHolder.unlockCanvasAndPost(c);
 
