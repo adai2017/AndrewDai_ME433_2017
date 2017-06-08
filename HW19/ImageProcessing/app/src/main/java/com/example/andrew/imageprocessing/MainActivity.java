@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private TextView mTextView;
 
     static long prevtime = 0; // for FPS calculation
-    int COM;
+
 
     SeekBar myControl;
     SeekBar myControl2;
@@ -152,6 +152,10 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         mTextureView.getBitmap(bmp);
 
         final Canvas c = mSurfaceHolder.lockCanvas();
+        int tot = 0;
+        int totY = 0;
+        int COM;
+        int comArr = 0;
 
         for (int j = 0; j < bmp.getHeight(); j += 8) {
             if (c != null) {
@@ -182,18 +186,25 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                     COM = 0;
                 }
 
+                comArr = comArr + COM;
+                tot++;
+                totY = totY + j;
+
                 // update the row
                 bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
 
             }
+
         }
 
-
-//        // draw a circle at some position
-//        canvas.drawCircle(COM, 40, 240, paint1); // x position, y position, diameter, color
+        // draw a circle at some position
+        canvas.drawCircle(comArr / tot, totY / tot, 10, paint1); // x position, y position, diameter, color
 
         // write the pos as text
-        canvas.drawText("Thresh = " + myControl.getProgress(), 10, 200, paint1);
+        canvas.drawText("Grey Thresh = " + myControl.getProgress(), 10, 200, paint1);
+        canvas.drawText("Green Thresh = " + myControl2.getProgress(), 10, 240, paint1);
+        canvas.drawText("COM X: " + (comArr/tot), 10, 300, paint1);
+        canvas.drawText("COM Y: " + (totY / tot), 10, 340, paint1);
         c.drawBitmap(bmp, 0, 0, null);
         mSurfaceHolder.unlockCanvasAndPost(c);
 
