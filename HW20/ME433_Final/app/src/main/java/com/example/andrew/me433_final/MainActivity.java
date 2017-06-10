@@ -464,19 +464,19 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
 
         int kp = myControlKp.getProgress() / 10;
 
-        int error = COM - 240; // 240 means the dot is in the middle of the screen
+        int error = COM - 320; // 320 means the dot is in the middle of the screen
         if (error<0) { // slow down the left motor to steer to the left
             error  = -error;
-            PWM2 = 10*myControlMaxSpeed.getProgress() - (kp*4*error/12);
-            PWM1 = 10*myControlMaxSpeed.getProgress() + (kp*4*error/12);
+            PWM1 = 10*myControlMaxSpeed.getProgress() - (kp*4*error/12);
+            PWM2 = 10*myControlMaxSpeed.getProgress() + (kp*4*error/12);
             RC = 2000;
             if (PWM2 < 0){
                 PWM2 = 0;
             }
         }
         else { // slow down the right motor to steer to the right
-            PWM1 = 10*myControlMaxSpeed.getProgress() - (4*kp*error/12);
-            PWM2 = 10*myControlMaxSpeed.getProgress() + (4*kp*error/12);
+            PWM2 = 10*myControlMaxSpeed.getProgress() - (4*kp*error/12);
+            PWM1 = 10*myControlMaxSpeed.getProgress() + (4*kp*error/12);
             RC = 7000;
             if (PWM1<0) {
                 PWM1 = 0;
